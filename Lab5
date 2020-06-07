@@ -1,0 +1,40 @@
+public class lab5 {
+
+    public static void removeOfString(text t, letter a, letter b) {
+        boolean k = true;
+        StringBuffer s = new StringBuffer();
+        for (int i = 0; i < t.getSentence().length; i++) {
+            int a1 = t.getSentence()[i].getSent().indexOf(a.getLetter());
+            int b1 = t.getSentence()[i].getSent().lastIndexOf(b.getLetter());
+            if (a1 != -1 && b1 != -1) {
+                s.append(t.getSentence()[i].getSent().substring(0, a1)
+                        + t.getSentence()[i].getSent().substring(b1 + 1));
+                k = false;
+            } else {
+                s.append(t.getSentence()[i].getSent());
+            }
+        }
+        if (k) {
+            System.out.println("No new symbols");
+        } else {
+            text t1 = new text(s.toString());
+            System.out.println("You enter the text:" + "\n" + t.getTxt());
+            System.out.println("Redacted text:");
+            System.out.println(t1.getTxt());
+        }
+    }
+
+    public static void main(String[] args) {
+        String s = "Не успел наш корабль выйти из  устья  Хамбера,  как  с  севера  подул\n" +
+                "холодный ветер. "
+                + "Небо покрылось тучами. "
+                + "Началась сильнейшая качка.";
+        text b = new text(s);
+        letter a = new letter('н');
+        letter k = new letter('й');
+        removeOfString(b, a, k);
+        sentence w1 = new sentence("London is the capital of Great Britain", '.');
+        System.out.println(w1.collectSentence());
+        System.out.println(b.collectText());
+    }
+}
