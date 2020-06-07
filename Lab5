@@ -38,3 +38,237 @@ public class lab5 {
         System.out.println(b.collectText());
     }
 }
+
+
+public class sentence {
+
+        private String sent;
+        private word[] words;
+
+        private ArrayList<punctuation> p;
+
+        public sentence(String a, char s) {
+            setSent(a + s);
+            ArrayList<punctuation> p1 = new ArrayList<punctuation>();
+            for (int i = 0; i < a.length(); i++) {
+                if (a.charAt(i) == ',' || a.charAt(i) == ';' || a.charAt(i) == ':'
+                        || a.charAt(i) == '-') {
+                    p1.add(new punctuation(a.charAt(i), i));
+                }
+            }
+            p1.add(new punctuation(s, a.length()));
+            p = p1;
+            String sent1[] = a.split("[,-:;]\\s|\\s[,-:;]|[,-:;]|\\s");
+            int k = 0;
+            for (int i = 0; i < sent1.length; i++) {
+                if (sent1[i].isEmpty()) {
+                    k++;
+                }
+            }
+            this.words = new word[sent1.length - k];
+            for (int i = 0, j = 0; i < sent1.length; i++) {
+                if (!sent1[i].isEmpty()) {
+                    words[j] = new word(sent1[i]);
+                    j++;
+                }
+            }
+        }
+
+
+        public String getSent() {
+            return new String(sent);
+        }
+
+
+        public void setSent(String sent) {
+            this.sent = new String(sent);
+        }
+
+
+        public word[] getWords() {
+            return words.clone();
+        }
+
+
+        public void setWord(word[] word) {
+            this.words = word.clone();
+        }
+
+
+        public ArrayList<punctuation> getP() {
+            return new ArrayList<punctuation>(p);
+        }
+
+        public void setP(ArrayList<punctuation> p) {
+            this.p = new ArrayList<punctuation>(p);
+        }
+
+        public StringBuffer collectSentence() {
+            StringBuffer s = new StringBuffer();
+            for (int i = 0, j = 0, z = 0; i < this.words.length; i++) {
+                z = z + words[i].collectWord().length();
+                if (z + 1 == p.get(j).getPosition()
+                        || z + 2 == p.get(j).getPosition()) {
+                    s.append(words[i].collectWord());
+                    s.append(p.get(j).getSymbol());
+                    s.append(" ");
+
+                    j++;
+                } else {
+                    s.append(words[i].collectWord());
+                    s.append(" ");
+                }
+            }
+            s.append(p.get(p.size() - 1).getSymbol());
+            return s;
+        }
+}
+
+public class punctuation {
+
+        private char symbol;
+
+        private int position;
+
+
+        public punctuation(char a, int p) {
+            setSymbol(a);
+            setPosition(p);
+        }
+
+
+        public char getSymbol() {
+            return symbol;
+        }
+
+
+        public void setSymbol(char symbol) {
+            this.symbol = symbol;
+        }
+
+
+        public int getPosition() {
+            return position;
+        }
+
+
+        public void setPosition(int position) {
+            this.position = position;
+        }
+}
+
+
+public class text {
+
+        private String txt;
+
+        private com.company.Sentence.sentence[] sentence;
+
+
+        public text(String s) {
+            String s1 = s.replaceAll("\\s+", " ");
+            setTxt(s1);
+            String sent1[] = s1.split("\\.|!|\\?");
+            this.sentence = new sentence[sent1.length];
+            int z = 0;
+            for (int i = 0; i < sent1.length; i++) {
+                z = z + sent1[i].length();
+                sentence[i] = new sentence(sent1[i], s1.charAt(z + i));
+            }
+        }
+
+
+        public String getTxt() {
+            return new String(txt);
+        }
+
+
+        public void setTxt(String txt) {
+            this.txt = new String(txt);
+        }
+
+
+        public com.company.Sentence.sentence[] getSentence() {
+            return sentence.clone();
+        }
+
+        public void setSentence(sentence[] sentence) {
+            this.sentence = sentence.clone();
+        }
+
+        public StringBuffer collectText() {
+            StringBuffer s = new StringBuffer();
+            for (int i = 0; i < this.sentence.length; i++) {
+                s.append(sentence[i].collectSentence());
+            }
+            return s;
+        }
+}
+
+
+
+public class word {
+
+
+        private String word;
+
+        private letter[] letters;
+
+        public word(String a) {
+            setWord(a);
+            this.letters = new letter[a.length()];
+            for (int i = 0; i < a.length(); i++) {
+                letters[i] = new letter(a.charAt(i));
+            }
+        }
+
+
+        public String getWord() {
+            return new String(word);
+        }
+
+        public void setWord(String word) {
+            this.word = new String(word);
+        }
+
+
+        public letter[] getLetters() {
+            return letters.clone();
+        }
+
+
+        public void setLetters(letter[] letter) {
+            this.letters = letter.clone();
+        }
+
+        public StringBuffer collectWord() {
+            StringBuffer s = new StringBuffer();
+            for (int i = 0; i < this.letters.length; i++) {
+                s.append(letters[i].getLetter());
+            }
+            return s;
+        }
+}
+
+
+public class letter {
+
+
+        private char letter;
+
+
+        public letter(char a) {
+            letter = a;
+        }
+
+
+        public char getLetter() {
+            return letter;
+        }
+
+
+        public void setLetter(char letter) {
+            this.letter = letter;
+        }
+
+}
