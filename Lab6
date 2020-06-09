@@ -27,18 +27,7 @@ public class lab6 {
         van.printLoad();
         van.getLoad().sort(new ComparatorByQuality());
         System.out.println("\n\n\n");
-//                                     ***FOR TEST***
-//        van.getLoad().forEach(elem -> System.out.println(elem.getQuality()));
-        van.printLoad();
-        try {
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Left border: ");
-            double leftBorderOfQuality = scanner.nextDouble();
-            System.out.println("Right border: ");
-            double rightBorderOfQuality = scanner.nextDouble();
-            van.findItemsInGivenRange(leftBorderOfQuality, rightBorderOfQuality).forEach(System.out::println);
-        } catch (Exception e) {
-            System.out.println("Wrong input, input must be number, fractional part must be entered after ','");
+
         }
     }
 }
