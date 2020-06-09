@@ -1,140 +1,286 @@
 public class lab6 {
+
     public static void main(String[] args) {
-        Helmet h = new Helmet(35, 115, "Helmet");
-        Armor a = new Armor(25, 200, "Life Jacket");
-        Shield s = new Shield(10, 110, "Shield");
-        Munitions[] munitions = { h, a, s };
-        System.out.println("Cost set of munition: "
-                + Munitions.cost(munitions));
-        Munitions.sortedByWeight(munitions);
-        System.out.println("Cost of shields:");
-        for (int i = 0; i < munitions.length; i++) {
-            System.out.print(munitions[i].getWeight() + " ");
-            }
-        System.out.println();
-        Munitions d[];
-        d = Munitions.priceRange(munitions, 0, 500);
-        System.out.println("Cost of life jackets:");
-        for (int i = 0; i < d.length; i++) {
-            System.out.print(d[i].getPrice() + " ");
+        ArrayList<InstantCoffee> instantCoffees = new ArrayList<>();
+        ArrayList<MilledCoffee> milledCoffees = new ArrayList<>();
+        ArrayList<CoffeeInBags> coffeeInBags = new ArrayList<>();
+
+        instantCoffees.add(new InstantCoffee("Sumatra", 150, 80, 30, "Folgers"));
+        instantCoffees.add(new InstantCoffee("Kenya Selected", 350, 50, 40, "Maxwell House"));
+        instantCoffees.add(new InstantCoffee("Blawan Paumah", 300, 60, 40, "Ellis"));
+        milledCoffees.add(new MilledCoffee("Arabica", 400, 30, 50, "Jacobs"));
+        milledCoffees.add(new MilledCoffee("Robusta", 300, 50, 40, "Boxcar"));
+        milledCoffees.add(new MilledCoffee("Liberian", 350, 30, 45, "Blue Star"));
+        coffeeInBags.add(new CoffeeInBags("Typica", 200, 50, 30, "Intelligentsia"));
+        coffeeInBags.add(new CoffeeInBags("Arusha", 500, 50, 50, "Starbucks"));
+        coffeeInBags.add(new CoffeeInBags("Mokka", 400, 40, 40, "Lipton"));
+
+        InstantCoffee[] arrInstantCoffees = new InstantCoffee[instantCoffees.size()];
+        MilledCoffee[] arrMilledCoffees = new MilledCoffee[milledCoffees.size()];
+        CoffeeInBags[] arrCoffeeInBags = new CoffeeInBags[coffeeInBags.size()];
+        arrInstantCoffees = instantCoffees.toArray(arrInstantCoffees);
+        arrMilledCoffees = milledCoffees.toArray(arrMilledCoffees);
+        arrCoffeeInBags = coffeeInBags.toArray(arrCoffeeInBags);
+
+        Van van = new Van(500000);
+        van.loadVan(arrInstantCoffees, arrMilledCoffees, arrCoffeeInBags, 1000);
+        van.printLoad();
+        van.getLoad().sort(new ComparatorByQuality());
+        System.out.println("\n\n\n");
+//                                     ***FOR TEST***
+//        van.getLoad().forEach(elem -> System.out.println(elem.getQuality()));
+        van.printLoad();
+        try {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Left border: ");
+            double leftBorderOfQuality = scanner.nextDouble();
+            System.out.println("Right border: ");
+            double rightBorderOfQuality = scanner.nextDouble();
+            van.findItemsInGivenRange(leftBorderOfQuality, rightBorderOfQuality).forEach(System.out::println);
+        } catch (Exception e) {
+            System.out.println("Wrong input, input must be number, fractional part must be entered after ','");
         }
-        }
+    }
 }
 
 
-public class Shield extends Munitions {
+public class ComparatorByQuality implements Comparator<Object> {
 
-        public Shield(int w, int p, String m) {
-            super(w, p, m);
+    @Override
+    public int compare(Object obj1, Object obj2) {
+        if (obj1 instanceof Coffee && obj2 instanceof Coffee) {
+            return Double.compare(((Coffee) obj1).getQuality(), ((Coffee) obj2).getQuality());
         }
+        return -2;
+    }
+}
+
+
+public abstract class Coffee {
+    private String sort;
+    private double weightOfCoffee;
+
+    public String getSort() {
+        return sort;
+    }
+
+    public double getWeightOfCoffee() {
+        return weightOfCoffee;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public double getQuality() {
+        return quality;
+    }
+
+    public String getNameOfManufacturer() {
+        return nameOfManufacturer;
+    }
+
+    private double price;
+    private double quality;
+    private String nameOfManufacturer;
+
+    public Coffee(String sort, double weightOfCoffee, double price, String nameOfManufacturer) throws WrongValueException {
+        if (sort == null) throw new WrongValueException();
+        if (weightOfCoffee <= 0) throw new WrongValueException();
+        if (price <= 0) throw new WrongValueException();
+        if (nameOfManufacturer == null) throw new WrongValueException();
+        this.sort = sort;
+        this.weightOfCoffee = weightOfCoffee;
+        this.price = price;
+        this.quality = price / weightOfCoffee;
+        this.nameOfManufacturer = nameOfManufacturer;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Coffee) {
+            return sort.equals(((Coffee) obj).sort) &&
+                    weightOfCoffee == ((Coffee) obj).weightOfCoffee &&
+                    price == ((Coffee) obj).price &&
+                    quality == ((Coffee) obj).quality &&
+                    nameOfManufacturer.equals(((Coffee) obj).nameOfManufacturer);
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return "Sort: " + sort
+                + "\nName of manufacturer: " + nameOfManufacturer
+                + "\nWeight of coffee: " + weightOfCoffee
+                + "\nCost: " + price
+                + "\nQuality: " + quality;
+    }
+}
+
+
+public class CoffeeInBags extends Coffee {
+    private double weightOfPackage;
+    private double weight;
+
+
+    public CoffeeInBags(String sort, double weightOfCoffee, double cost, double weightOfPackage, String nameOfManufacturer) throws WrongValueException {
+        super(sort, weightOfCoffee, cost, nameOfManufacturer);
+        if (weightOfPackage <= 0) throw new WrongValueException();
+        this.weightOfPackage = weightOfPackage;
+        this.weight = weightOfPackage + weightOfCoffee;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof CoffeeInBags) {
+            return super.equals(obj) && this.weightOfPackage == ((CoffeeInBags) obj).weightOfPackage;
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() +
+                "\nWeight of package: " + weightOfPackage +
+                "\nFull weight: " + weight + "\n";
+    }
 }
 
 
 
-public class Armor extends Munitions {
+public class InstantCoffee extends Coffee {
+    private double weightOfPackage;
+    private double weight;
 
-        public Armor(int w, int p, String m) {
-            super(w, p, m);
+    public InstantCoffee(String sort, double weightOfCoffee, double cost, double weightOfPackage, String nameOfManufacturer) throws WrongValueException{
+        super(sort, weightOfCoffee, cost, nameOfManufacturer);
+        if (weightOfPackage <= 0) throw new WrongValueException();
+        this.weightOfPackage = weightOfPackage;
+        this.weight = weightOfPackage + weightOfCoffee;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof InstantCoffee) {
+            return super.equals(obj) && weightOfPackage == ((InstantCoffee) obj).weightOfPackage;
         }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() +
+                "\nWeight of package: " + weightOfPackage +
+                "\nFull weight: " + weight + "\n";
+    }
 }
 
 
+public class MilledCoffee extends Coffee {
+    private double weightOfPackage;
+    private double weight;
 
-public class Helmet extends Munitions {
 
-        public Helmet(int w, int p, String m) {
-            super(w, p, m);
+    public MilledCoffee(String sort, double weightOfCoffee, double cost, double weightOfPackage, String nameOfManufacturer) throws WrongValueException {
+        super(sort, weightOfCoffee, cost, nameOfManufacturer);
+        if (weightOfPackage <= 0) throw new WrongValueException();
+        this.weightOfPackage = weightOfPackage;
+        this.weight = weightOfPackage + weightOfCoffee;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof MilledCoffee) {
+            return super.equals(obj) && this.weightOfPackage == ((MilledCoffee) obj).weightOfPackage;
         }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() +
+                "\nWeight of package: " + weightOfPackage +
+                "\nFull weight: " + weight + "\n";
+    }
 }
 
 
+public class Van {
+    private double carryingCapacity;
+    private ArrayList<Coffee> load = new ArrayList<>();
+    private double priceOfFreight;
+    private double weightOfCoffees;
 
-public class Munitions {
+    public ArrayList<Coffee> getLoad() {
+        return load;
+    }
 
-        private int weight;
-        private int price;
-        private String material;
-
-
-        public int getWeight() {
-            return weight;
+    public void printLoad() {
+        for (Coffee coffee : load) {
+            System.out.println(coffee);
         }
+    }
 
+    public double getPriceOfFreight() {
+        return priceOfFreight;
+    }
 
-        public void setWeight(int weight) {
-            this.weight = weight;
-        }
+    public double getWeightOfCoffees() {
+        return weightOfCoffees;
+    }
 
+    public double getCarryingCapacity() {
+        return carryingCapacity;
+    }
 
-        public int getPrice() {
-            return price;
-        }
+    public void setCarryingCapacity(double carryingCapacity) {
+        this.carryingCapacity = carryingCapacity;
+    }
 
+    public Van(double carryingCapacity) {
+        this.carryingCapacity = carryingCapacity;
+        this.priceOfFreight = 0;
+        this.weightOfCoffees = 0;
+    }
 
-        public void setPrice(int price) {
-            this.price = price;
-        }
-
-        public String getMaterial() {
-            return new String(material);
-        }
-
-        public void setMaterial(String material) {
-            this.material = new String(material);
-        }
-
-        public Munitions(int w, int p, String m) {
-            setWeight(w);
-            setPrice(p);
-            setMaterial(m);
-        }
-
-
-
-        public Munitions(Munitions obj) {
-            setWeight(obj.getWeight());
-            setPrice(obj.getPrice());
-            setMaterial(obj.getMaterial());
-        }
-
-        public static int cost(Munitions[] m) {
-            int price = 0;
-            for (int i = 0; i < m.length; i++) {
-                price = price + m[i].getPrice();
-            }
-            return price;
-        }
-
-        public static void sortedByWeight(Munitions[] m) {
-            Arrays.sort(m, new Comparator<Munitions>() {
-                @Override
-                public int compare(Munitions m1, Munitions m2) {
-                    return m1.getWeight() - m2.getWeight();
-                }
-            });
-        }
-
-
-
-        public static Munitions[] priceRange(Munitions[] m, int a, int b) {
-            int length = 0;
-            for (int i = 0; i < m.length; i++) {
-                if (m[i].getPrice() >= a && m[i].getPrice() <= b) {
-                    length++;
-                }
-            }
-
-            Munitions[] m1 = new Munitions[length];
-            for (int i = 0; i < m.length; i++) {
-                if (m[i].getPrice() >= a && m[i].getPrice() <= b) {
-                    m1[i] = m[i];
-                }
-            }
-
-            if (length == 0) {
-                return null;
+    private void loader(Coffee[] coffees, double budget) {
+        for (Coffee coffee : coffees) {
+            if (weightOfCoffees + coffee.getWeightOfCoffee() <= carryingCapacity && priceOfFreight + coffee.getPrice() <= budget) {
+                weightOfCoffees += coffee.getWeightOfCoffee();
+                priceOfFreight += coffee.getPrice();
+                load.add(coffee);
             } else {
-                return m1;
+                return;
             }
         }
+    }
+
+    public void loadVan(InstantCoffee[] instantCoffees, MilledCoffee[] milledCoffees, CoffeeInBags[] coffeeInBags, double budget) {
+        double minPrice = instantCoffees[0].getPrice();
+        checker(instantCoffees, minPrice);
+        checker(milledCoffees, minPrice);
+        checker(coffeeInBags, minPrice);
+        load.clear();
+        if (budget < minPrice) return;
+        while (weightOfCoffees < carryingCapacity && priceOfFreight + minPrice < budget) {
+            loader(instantCoffees, budget);
+            loader(milledCoffees, budget);
+            loader(coffeeInBags, budget);
+        }
+    }
+
+    public ArrayList<Coffee> findItemsInGivenRange(double leftBorder, double rightBorder) {
+        ArrayList<Coffee> itemsInRange = new ArrayList<>();
+        for (Coffee coffee: load) {
+            if (coffee.getQuality() >= leftBorder && coffee.getQuality() <= rightBorder) itemsInRange.add(coffee);
+        }
+        return itemsInRange;
+    }
+
+    private void checker(Coffee[] coffees, double minPrice) {
+        for (Coffee coffee : coffees) {
+            if (coffee.getPrice() < minPrice) minPrice = coffee.getPrice();
+        }
+    }
 }
